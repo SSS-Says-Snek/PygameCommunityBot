@@ -20,6 +20,8 @@ from discord.ext import tasks
 from pgbot import common, db, emotion
 from pgbot.utils import utils
 
+num_increment = 1 / 20
+
 
 async def handle_reminders(reminder_obj: db.DiscordDB):
     """
@@ -129,17 +131,17 @@ async def handle_depression():
                         emotion.depression_function_curve(
                             "happy", depression.get("value", 0), inverse=True
                         )
-                        + 1 / 20
+                        + num_increment
                     )
                 except ValueError:
-                    depression["min_of_happiness"] -= 1
+                    depression["min_of_happiness"] = num_increment
             else:
                 try:
                     depression["min_of_happiness"] = (
-                        depression.get("min_of_happiness", 0) + 1 / 20
+                        depression.get("min_of_happiness", 0) + num_increment
                     )
                 except TypeError:
-                    depression["min_of_happiness"] = 1 / 20
+                    depression["min_of_happiness"] = num_increment
         else:
             depression["min_of_happiness"] = None
 
@@ -149,21 +151,21 @@ async def handle_depression():
                         emotion.depression_function_curve(
                             "depression", depression.get("value", 0), inverse=True
                         )
-                        + 2
+                        + num_increment
                     )
                 except ValueError:
                     depression["min_of_happiness"] += 0.1
             else:
                 try:
                     depression["min_of_sadness"] = (
-                        depression.get("min_of_sadness", 0) + 1 / 20
+                        depression.get("min_of_sadness", 0) + num_increment
                     )
                 except TypeError:
-                    depression["min_of_sadness"] = 1 / 20
+                    depression["min_of_sadness"] = num_increment
 
         try:
             if depression.get("min_of_happiness", 0) < 0:
-                depression["min_of_happiness"] = 1 / 20
+                depression["min_of_happiness"] = num_increment
         except TypeError:
             pass
 
@@ -184,8 +186,6 @@ async def handle_depression():
             )
 
         all_emotions["depression"] = depression
-
-        print(depression)
 
         db_obj.write(all_emotions)
 

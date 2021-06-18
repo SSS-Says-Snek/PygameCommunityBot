@@ -74,7 +74,7 @@ async def check_bonk(msg: discord.Message):
     await update("happy", -bonks)
 
 
-async def dad_joke(msg: discord.Message):
+async def dad_joke(msg: discord.Message, mode="happy"):
     """
     Utility to handle the bot making dad jokes
     """
@@ -87,7 +87,10 @@ async def dad_joke(msg: discord.Message):
     lowered = unidecode.unidecode(msg.content.lower().strip())
     for trigger in ("i am", "i'm"):
         if lowered == trigger:
-            await msg.channel.send(random.choice(common.SHAKESPEARE_QUOTES))
+            if mode == "happy":
+                await msg.channel.send(random.choice(common.SHAKESPEARE_QUOTES))
+            elif mode == "depression":
+                await msg.channel.send("To, to to to... to..t. <:pg_depressed:845321616094789712>")
             return
 
         if trigger in lowered and len(lowered) < 60:
@@ -104,10 +107,14 @@ async def dad_joke(msg: discord.Message):
                 if char in name:
                     name = name.split(char)[0]
 
-            if name:
+            if name and mode == "happy":
                 await msg.channel.send(
                     f"Hi {name}! I am <@!{common.bot.user.id}>",
                     allowed_mentions=discord.AllowedMentions.none(),
+                )
+            elif name and mode == "depression":
+                await msg.channel.send(
+                    f"Hi {name}! I am... I am.. <:pg_depressed:845321616094789712>"
                 )
             return
 
